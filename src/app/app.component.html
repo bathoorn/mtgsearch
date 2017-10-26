@@ -18,7 +18,7 @@
   </li>
 </ul>
 
-<mat-toolbar><mat-form-field><input matInput placeholder="Search" [formControl]="emailFormControl" ng-model="query" name="Search"></input><mat-icon>search</mat-icon></mat-form-field></mat-toolbar>
+<mat-toolbar><mat-form-field><input matInput placeholder="Search" name="Search"></input><mat-icon>search</mat-icon></mat-form-field></mat-toolbar>
 <h2>Search Results for {{query}}</h2>
 <mat-card class="mtgcard" ng-repeat="doc in results.response.docs">
   <mat-card-header><mat-card-title>{{doc["name"]}}</mat-card-title></mat-card-header><mat-card-content>
