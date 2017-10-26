@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
-import { Http } from '@angular/http';
+import { Http, Response } from '@angular/http';
+import { Observable } from 'rxjs/Observable';
 
 const API_URL = environment.searchUrl;
 
 @Injectable()
 export class SearchApiService {
-  results = undefined;
 
   constructor(private http: Http) {
   }
   
-  searchSolr(): JSON {
-    this.http.request(API_URL,{
+  searchSolr(): Observable<Response> {
+    return this.http.request(API_URL,{
       method: 'JSONP',
       params: {
           'json.wrf': 'JSON_CALLBACK',
@@ -23,7 +23,6 @@ export class SearchApiService {
           'facet':'true',
           'facet.field' : 'colors'
       }}
-    ).subscribe(res => this.results = res.json());
-    return this.results;
+    );
   }
 }
