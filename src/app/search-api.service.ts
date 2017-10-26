@@ -15,7 +15,6 @@ export class SearchApiService {
     return this.http.request(API_URL,{
       method: 'JSONP',
       params: {
-          'json.wrf': 'callback',
           'q': 'goblins', 
           'wt': 'json',
           'rows': 25,
