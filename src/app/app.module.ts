@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { HttpModule } from '@angular/http';
 import {MatCardModule, MatToolbarModule,MatIconModule} from '@angular/material';
 
 import { AppComponent } from './app.component';
@@ -12,6 +12,7 @@ import { SearchApiService } from './search-api.service';
   ],
   imports: [
     BrowserModule,
+    HttpModule,
 	  MatCardModule, 
 	  MatToolbarModule,
 	  MatIconModule
