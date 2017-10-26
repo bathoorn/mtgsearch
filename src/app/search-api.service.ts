@@ -14,9 +14,8 @@ export class SearchApiService {
   searchSolr(): Observable<Response> {
     return this.http.request(API_URL,
       {
-      method: 'JSONP',
+      method: 'GET',
       params: {
-          'json.wrf': 'callback',
           'q': 'goblins', 
           'wt': 'json',
           'rows': 25,
