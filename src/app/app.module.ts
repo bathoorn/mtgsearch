@@ -3,13 +3,11 @@ import { NgModule } from '@angular/core';
 import {MatCardModule, MatToolbarModule,MatIconModule} from '@angular/material';
 
 import { AppComponent } from './app.component';
-import { SearchResultsDirective } from './search-results.directive';
 import { SearchApiService } from './search-api.service';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SearchResultsDirective
   ],
   imports: [
     BrowserModule,
