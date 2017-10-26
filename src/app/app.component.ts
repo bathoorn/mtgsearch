@@ -11,9 +11,8 @@ import { Facet } from './facet';
 })
 export class AppComponent {
   title = 'mtgsearch';
-
   facets: Facet[] = [];
-  results: Response;
+  results: Response = undefined;
 
     constructor(
       private searchApiService: SearchApiService
