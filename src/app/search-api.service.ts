@@ -11,12 +11,12 @@ export class SearchApiService {
   constructor(private http: Http) {
   }
   
-  searchSolr(): Observable<Response> {
+  searchSolr(aquery: string): Observable<Response> {
     return this.http.request(API_URL,
       {
       method: 'GET',
       params: {
-          'q': 'goblins', 
+          'q': aquery, 
           'wt': 'json',
           'rows': 25,
           'indent':true,
