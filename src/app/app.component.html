@@ -3,9 +3,8 @@
 <div class="content" *ngIf="results">
 <h2>Search Results for {{query}} ({{results.response.numFound}}) </h2>
 <mat-card class="mtgcard" *ngFor="let card of results.response.docs">
-  <mat-card-header><mat-card-title>{{card.name}}</mat-card-title></mat-card-header><mat-card-content>
-  <p>{{card.type}}</p>
-  <p>{{convertSymbols(card.manacost)}}</p></mat-card-content>
+  <mat-card-header><mat-card-title class="mtgtitle">{{card.name}}<span class="manacost" *ngIf="card.manacost" [innerHTML]="convertSymbols(card.manacost)"></span></mat-card-title></mat-card-header><mat-card-content>
+  <p>{{card.type}}</p></mat-card-content>
 </mat-card>
 </div>
 

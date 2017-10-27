@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { SearchApiService } from './search-api.service';
 import { Http, Response } from '@angular/http';
 import { Facet } from './facet';
+import { SanitizeHtml, SanitizeResourceUrl, SanitizeScript, SanitizeStyle, SanitizeUrl } from 'ng2-sanitize';
 
 @Component({
   selector: 'app-root',
