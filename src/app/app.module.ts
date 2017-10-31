@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { HttpModule } from '@angular/http';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {MatCardModule, MatToolbarModule,MatIconModule,MatFormFieldModule,MatInputModule} from '@angular/material';
+import {MatCardModule, MatToolbarModule,MatIconModule,MatFormFieldModule,MatInputModule,MatButtonModule,MatSidenavModule,MatCheckboxModule} from '@angular/material';
 
 import { AppComponent } from './app.component';
 import { SearchApiService } from './search-api.service';
@@ -21,6 +21,9 @@ import { SearchApiService } from './search-api.service';
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
+    MatButtonModule,
+    MatSidenavModule,
+    MatCheckboxModule,
     BrowserAnimationsModule
   ],
   providers: [SearchApiService],

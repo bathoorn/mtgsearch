@@ -1,8 +1,6 @@
-import { FacetValue } from './facet-value';
-
-export class Facet {
+export class SelectedFacet {
     name: string = '';
-    values: FacetValue[] = [];
+    value: string = '';
   
     constructor(values: Object = {}) {
       Object.assign(this, values);

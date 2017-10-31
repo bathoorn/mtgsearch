@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { SearchApiService } from './search-api.service';
 import { Http, Response } from '@angular/http';
 import { Facet } from './facet';
+import { FacetValue } from './facet-value';
+import { SelectedFacet } from './selected-facet';
 import { SanitizeHtml, SanitizeResourceUrl, SanitizeScript, SanitizeStyle, SanitizeUrl } from 'ng2-sanitize';
 
 @Component({
@@ -12,7 +14,10 @@ import { SanitizeHtml, SanitizeResourceUrl, SanitizeScript, SanitizeStyle, Sanit
 })
 export class AppComponent {
   title = 'mtgsearch';
-  facets: Facet[] = [];
+  active_facets = {};
+  active_facet_names = [];
+  facet_counts = {};
+  facet_counts_names = [];
   query: string = 'goblins';
   results: JSON = undefined;
 
@@ -20,25 +25,52 @@ export class AppComponent {
       private searchApiService: SearchApiService
     ) {
     }
+
+    loadfacets(afacetslist) {
+      this.facet_counts = {};
+      for (const key of Object.keys(afacetslist)) {
+        var thefacetvalues = afacetslist[key];
+        this.facet_counts[key]={};
+        var i = 0;
+        for (i = 0; i < thefacetvalues.length && i < 10 ; i=i+2) {
+          if (thefacetvalues[i+1]>0) {
+            this.facet_counts[key][thefacetvalues[i]]=thefacetvalues[i+1];           
+          }
+        }
+        this.facet_counts[key]['values'] = Object.keys(this.facet_counts[key]);
+      }
+      this.facet_counts_names = Object.keys(this.facet_counts);      
+    }
   
     public ngOnInit() {
-      this.searchApiService
-        .searchSolr(this.query)
-        .subscribe(
-          (res) => {
-            this.results = res.json();
-          }
-        );
+      this.search();
     }
 
     search() {
       this.searchApiService
-        .searchSolr(this.query)
+        .searchSolr(this.query,this.active_facets)
         .subscribe(
         (res) => {
           this.results = res.json();
+          this.loadfacets(res.json().facet_counts.facet_fields);
         }
       );
+    }
+
+    toggleFacet(name,value) {
+      console.log('facet = '+name+' value ='+value );
+      var i = 0;
+      if (this.active_facets[name]) {
+        if (this.active_facets[name][value]) {
+          this.active_facets[name][value] = false;
+        } else {
+          this.active_facets[name][value] = true;
+        }         
+      } else {
+        this.active_facets[name]={};
+        this.active_facets[name][value] = true;
+      }
+      this.search();
     }
     
     convertSymbols(item){

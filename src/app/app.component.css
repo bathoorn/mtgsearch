@@ -1,16 +1,39 @@
+.all {
+    margin: 0px;
+}
+
 .content {
     margin: 8px;
 }
+
+.sidenav {
+    padding: 10px;
+    width: 380px;
+}
+
+.mtgfacet {
+    width: 140px;
+    float: left;
+    padding: 5px;
+    margin: 10px;
+}
+
 
 .mtgcard {
     width: 140px;
     height: 190px;
     float: left;
     margin: 10px;
+    border-radius: 10px;
 }
 
 .mtgtitle {
     width: 135px;
+    font-size: 70%;
+}
+
+.mtgcontent {
+    font-size: 70%;    
 }
 
 .manacost {
