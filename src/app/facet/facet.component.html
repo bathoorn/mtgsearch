@@ -1,0 +1,17 @@
+<ng-container *ngFor="let facet of dataSource.connect() | async">
+<mat-card fxFlex="auto" class="mtgfacet" *ngIf="facet.values.length <= 5">
+    <mat-card-header><mat-card-title class="mtgtitle">{{facet.label}}</mat-card-title></mat-card-header>
+    <div class="facet-checkbox" *ngFor="let value of facet.values"><mat-checkbox (click)="toggleFacet(facet.name,value)" [checked]="facet.checked[value]">{{value}} ({{facet.counts[value]}})</mat-checkbox></div>
+</mat-card>
+<mat-card fxFlex="10" class="mtgfacet" *ngIf="facet.values.length > 5">
+    <mat-form-field fxFlex class="facet-checkbox">
+    <input fxFlex type="text" placeholder="Pick a {{facet.label}}" aria-label="Set name" matInput [matAutocomplete]="setauto">
+    <mat-autocomplete #setauto="matAutocomplete">
+      <mat-option *ngFor="let value of facet.value_labels" [value]="value" (onSelectionChange)="toggleFacet(facet.name,value.split(' (')[0])">
+          <mat-icon>{{ isChecked(facet,value) }}</mat-icon>
+          <span>{{ value }}</span>
+      </mat-option>
+    </mat-autocomplete>
+ </mat-form-field>
+</mat-card>
+</ng-container>

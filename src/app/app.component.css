@@ -1,30 +1,30 @@
 .all {
+    display: flex;
     margin: 0px;
+    height: 100%;
+    width: 100%;
 }
 
 .content {
-    margin: 8px;
+    overflow-y: auto;
 }
 
-.sidenav {
+.leftsidenav {
     padding: 10px;
-    width: 380px;
+    width: 360px;
+    height: 100%;
 }
 
-.mtgfacet {
-    width: 140px;
-    float: left;
+.rightsidenav {
+    padding: 10px;
+    width: 500px;
+    height: 100%;
+}
+
+
+.mtggraph {
     padding: 5px;
     margin: 10px;
-}
-
-
-.mtgcard {
-    width: 140px;
-    height: 190px;
-    float: left;
-    margin: 10px;
-    border-radius: 10px;
 }
 
 .mtgtitle {
@@ -32,10 +32,14 @@
     font-size: 70%;
 }
 
-.mtgcontent {
-    font-size: 70%;    
+.fixed-header {
+    z-index: 2;
 }
 
-.manacost {
-    float: right;
+.fixed-footer {
+    z-index: 2;
+}
+
+.mat-paginator {
+    background: none;
 }

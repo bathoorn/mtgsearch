@@ -1,0 +1,74 @@
+<ng-container *ngIf="cardstyle=='compact' || cardstyle=='image'">
+<ng-container *ngFor="let card of dataSource.connect() | async">
+<mat-card (click)="openDialog(card)" class="mtgcard mat-elevation-z4" *ngIf="cardstyle=='compact' || (cardstyle=='image' && card.multiverseId=='' ) ">
+  <mat-card-content class="mtgcontent">
+    <p>{{card.name}}<span class="manacost" *ngIf="card.manaCost" [innerHTML]="convertSymbols(card.manaCost)"></span></p>  
+    <p>{{card.type}}</p>
+    <p *ngIf="card.text" [innerHTML]="convertSymbols(card.text)|slice:0:250"></p>
+    <p>release date: {{card.releasedate}}</p>
+  </mat-card-content>
+</mat-card>
+
+<mat-card (click)="selectCard(card)" class="mtgcard mat-elevation-z4" *ngIf="cardstyle=='image' && card.multiverseId != '' && (card.layout =='plane' || card.layouts =='phenomenon')">
+    <img mat-card-image class="cardimg rotate90" height="188" width="238" src="http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid={{card.multiverseId}}&type=card">
+</mat-card>
+  
+<mat-card (click)="selectCard(card)" class="mtgcard mat-elevation-z4" *ngIf="cardstyle=='image' && card.multiverseId != '' && card.layout !='plane' && card.layout !='phenomenon'">
+    <img mat-card-image class="cardimg" width="188" height="238" src="http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid={{card.multiverseId}}&type=card">
+</mat-card>
+</ng-container></ng-container>
+
+<div class="mtg-table mat-elevation-z4" *ngIf="cardstyle=='list'">
+    
+      <mat-table class="full-width" #table [dataSource]="dataSource">
+    
+        <!--- Note that these columns can be defined in any order.
+              The actual rendered columns are set as a property on the row definition" -->
+    
+        <!-- MultiverseID Column -->
+        <ng-container matColumnDef="multiverseId">
+          <mat-header-cell *matHeaderCellDef> MultiverseId </mat-header-cell>
+          <mat-cell *matCellDef="let card"> {{card.multiverseId}} </mat-cell>
+        </ng-container>
+    
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef> Card Name </mat-header-cell>
+          <mat-cell *matCellDef="let card"> {{card.name}} </mat-cell>
+        </ng-container>
+    
+        <!-- Mana Cost Column -->
+        <ng-container matColumnDef="manaCost">
+          <mat-header-cell *matHeaderCellDef> Mana Cost </mat-header-cell>
+          <mat-cell *matCellDef="let card"> <span *ngIf="card.manaCost" [innerHTML]="convertSymbols(card.manaCost)"></span> </mat-cell>
+        </ng-container>
+    
+        <!-- Type Column -->
+        <ng-container matColumnDef="type">
+          <mat-header-cell *matHeaderCellDef> Type </mat-header-cell>
+          <mat-cell *matCellDef="let card"> {{card.type}} </mat-cell>
+        </ng-container>
+    
+        <!-- Color Column -->
+        <ng-container matColumnDef="color">
+            <mat-header-cell *matHeaderCellDef> Color </mat-header-cell>
+            <mat-cell *matCellDef="let card"> {{card.color}} </mat-cell>
+        </ng-container>
+
+        <!-- Rarity Column -->
+        <ng-container matColumnDef="rarity">
+            <mat-header-cell *matHeaderCellDef> Rarity </mat-header-cell>
+            <mat-cell *matCellDef="let card"> {{card.rarity}} </mat-cell>
+        </ng-container>
+
+        <!-- Cardtext Column -->
+        <ng-container matColumnDef="text">
+          <mat-header-cell *matHeaderCellDef> Text </mat-header-cell>
+          <mat-cell *matCellDef="let card"> {{card.text}} </mat-cell>
+      </ng-container>
+      
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row (click)="selectCard(card)" *matRowDef="let card; columns: displayedColumns;"></mat-row>
+      </mat-table>
+    
+</div>

@@ -1,10 +1,19 @@
-import { Component } from '@angular/core';
-import { SearchApiService } from './search-api.service';
+import { Component, ViewChild, ViewChildren, QueryList, HostListener, SimpleChanges } from '@angular/core';
+import { SearchApiService, SearchContext, ChartData } from './search-api.service';
 import { Http, Response } from '@angular/http';
-import { Facet } from './facet';
-import { FacetValue } from './facet-value';
-import { SelectedFacet } from './selected-facet';
 import { SanitizeHtml, SanitizeResourceUrl, SanitizeScript, SanitizeStyle, SanitizeUrl } from 'ng2-sanitize';
+import { DataSource } from '@angular/cdk/table';
+import { MatSidenav ,MatPaginator, PageEvent, MatTabGroup } from '@angular/material';
+import { BaseChartDirective }   from 'ng2-charts/ng2-charts';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/of';
+import { CardData } from './card-data';
+import { CardDataSource } from './card-data-source';
+import { FacetData } from './facet-data';
+import { FacetDataSource } from './facet-data-source';
+import { FacetUpdate } from './facet/facet.component';
+import { ActiveFacets } from './active-facets';
+
 
 @Component({
   selector: 'app-root',
@@ -13,66 +22,133 @@ import { SanitizeHtml, SanitizeResourceUrl, SanitizeScript, SanitizeStyle, Sanit
   providers: [SearchApiService]
 })
 export class AppComponent {
+  @ViewChild('mana') public mana: BaseChartDirective;
+  @ViewChild('color') public color: BaseChartDirective;
+  @ViewChild('leftnav') public leftnav: MatSidenav;
+  @ViewChild('rightnav') public rightnav: MatSidenav;
+  @ViewChild('tabs') public tabs: MatTabGroup;
   title = 'mtgsearch';
-  active_facets = {};
-  active_facet_names = [];
-  facet_counts = {};
-  facet_counts_names = [];
-  query: string = 'goblins';
-  results: JSON = undefined;
+  cardstyle = 'compact';
+  nrofcardsperrow = 7;
 
+  selectedCard: CardData;
+  selectedIndex = 1;
+  
+  searchContext: SearchContext = {
+    query: '',
+    active_facets: new ActiveFacets(),
+    sort_field: 'name',
+    sort_direction: 'asc',
+    page_size: this.nrofcardsperrow*3,
+    page_index: 0,
+    now: Date.now()
+  };
+  releaseDate: Date;
+
+  pageSize = this.nrofcardsperrow*3;
+  pageSizeOptions = [21, 35, 49, 63];
+  pageIndex = 0;
+  pageEvent: PageEvent;
+  paginator: MatPaginator;
+
+  monthNames = [
+    "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+  ];
+
+    @HostListener('window:resize', ['$event']) onResize(event) {
+      var width = document.documentElement.clientWidth
+      this.nrofcardsperrow = Math.floor((width-20) / 208);
+      this.pageSize = this.nrofcardsperrow*3;
+      this.pageSizeOptions = [];
+      for (var i = 0;i<4;i++ ) {
+        this.pageSizeOptions.push(this.nrofcardsperrow*(3+2*i));
+      }
+    }
+  
     constructor(
       private searchApiService: SearchApiService
     ) {
     }
 
-    loadfacets(afacetslist) {
-      this.facet_counts = {};
-      for (const key of Object.keys(afacetslist)) {
-        var thefacetvalues = afacetslist[key];
-        this.facet_counts[key]={};
-        var i = 0;
-        for (i = 0; i < thefacetvalues.length && i < 10 ; i=i+2) {
-          if (thefacetvalues[i+1]>0) {
-            this.facet_counts[key][thefacetvalues[i]]=thefacetvalues[i+1];           
-          }
-        }
-        this.facet_counts[key]['values'] = Object.keys(this.facet_counts[key]);
-      }
-      this.facet_counts_names = Object.keys(this.facet_counts);      
-    }
-  
     public ngOnInit() {
-      this.search();
+      this.searchApiService.setSearchContext(this.searchContext);
+      this.searchApiService.searchSolr();
+    }
+
+    loadCharts() {
+      if (this.mana !== undefined) {
+        this.mana.chart.destroy();
+        this.mana.chart = 0;
+ 
+        this.mana.datasets = this.searchApiService.pivots[0].data;
+        this.mana.labels = this.searchApiService.pivots[0].labels;
+        this.mana.colors = this.searchApiService.pivots[0].colors;
+        this.mana.options = this.searchApiService.pivots[0].options;
+        this.mana.legend = this.searchApiService.pivots[0].legend;
+        this.mana.ngOnInit();
+      }
+
+      if (this.color !== undefined) {
+        this.color.chart.destroy();
+        this.color.chart = 0;
+ 
+        this.color.datasets = this.searchApiService.colorchart.data;
+        this.color.labels = this.searchApiService.colorchart.labels;
+        this.color.colors = this.searchApiService.colorchart.colors;
+        this.color.options = this.searchApiService.colorchart.options;
+        this.color.legend = this.searchApiService.colorchart.legend;
+        this.color.ngOnInit();
+      }
+    }
+
+    loadChart(achart) {
     }
 
     search() {
-      this.searchApiService
-        .searchSolr(this.query,this.active_facets)
-        .subscribe(
-        (res) => {
-          this.results = res.json();
-          this.loadfacets(res.json().facet_counts.facet_fields);
-        }
-      );
+      this.searchApiService.searchSolr();
     }
 
-    toggleFacet(name,value) {
-      console.log('facet = '+name+' value ='+value );
-      var i = 0;
-      if (this.active_facets[name]) {
-        if (this.active_facets[name][value]) {
-          this.active_facets[name][value] = false;
-        } else {
-          this.active_facets[name][value] = true;
-        }         
+    changeView(style) {
+      this.cardstyle = style;
+      if (this.cardstyle == 'compact' || this.cardstyle == 'image') {
+        this.pageSize = this.nrofcardsperrow*3;
+        this.pageSizeOptions = [];
+        for (var i = 0;i<4;i++ ) {
+          this.pageSizeOptions.push(this.nrofcardsperrow*(3+2*i));
+        }
       } else {
-        this.active_facets[name]={};
-        this.active_facets[name][value] = true;
+        this.pageSize = 50;
+        this.pageSizeOptions = [];
+        for (var i = 1;i<5;i++ ) {
+          this.pageSizeOptions.push(50*i);
+        }
       }
-      this.search();
     }
-    
+
+    toggleSidenav(sidenavname) {
+      if (sidenavname == 'leftnav') {
+        if (this.leftnav.opened) {
+          this.leftnav.close();
+        } else {
+          this.leftnav.open();          
+        }
+      } else {
+        if (this.rightnav.opened) {
+          this.rightnav.close();
+        } else {
+          this.loadCharts();
+          this.selectedIndex = 1;
+          this.rightnav.open();          
+        }
+      }
+    }
+
+    showCard(event: CardData){
+      this.selectedCard = event;
+      this.selectedIndex = 0;
+      this.rightnav.open(); 
+    }
+
     convertSymbols(item){
       item = item.replace(/\{W\}/g,'<i class="ms ms-w ms-cost"></i>');
       item = item.replace(/\{U\}/g,'<i class="ms ms-u ms-cost"></i>');
@@ -128,6 +204,11 @@ export class AppComponent {
       item = item.replace(/\+(\d+)\:/g,'<i class="ms ms-loyalty-up  ms-loyalty-$1"></i>:');
       item = item.replace(/\-(\d+)\:/g,'<i class="ms ms-loyalty-down  ms-loyalty-$1"></i>:');
       item = item.replace(/0:/g,'<i class="ms ms-loyalty-zero ms-loyalty-0"></i>:');
-      return item;
+      item = item.replace(/\n/g,'<br/>');
+      item = item.replace(/(&#13;)?&#10;/g, '<br/>');
+    return item;
     }
 }
+
+
+

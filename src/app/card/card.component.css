@@ -1,0 +1,71 @@
+.mtgcard {
+    width: 140px;
+    height: 190px;
+    float: left;
+    margin: 10px;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    overflow: hidden;
+}
+
+.mtglist {
+    margin: 5px;
+}
+.mtgcontent {
+    font-size: 70%;    
+}
+
+.manacost {
+    float: right;
+}
+
+.rotate90 {
+    -webkit-transform: translateY(-100%) rotate(90deg); /* Safari */
+    -moz-transform: translateY(-100%) rotate(90deg); /* Firefox 3.6 Firefox 4 */
+    /*-moz-transform-origin: right top; */
+    -ms-transform: translateY(-100%) rotate(90deg); /* IE9 */
+    -o-transform: translateY(-100%) rotate(90deg); /* Opera */
+    transform: translateY(-100%) rotate(90deg); /* W3C */  
+    -webkit-transform-origin: left bottom;
+    -moz-transform-origin: left bottom;
+    -ms-transform-origin: left bottom;
+    -o-transform-origin: left bottom;
+    transform-origin: left bottom;
+}
+
+.cardimg {
+    top: 0;
+    left: 0;
+    width: 188px;
+    height: 238px;
+    border: none;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+}
+
+.mat-table {
+    display: table;
+    width: 98%;
+}
+
+.mat-table > .mat-header-row, .mat-table > .mat-row {
+  display: table-row;
+  padding: 0;
+  border: none;
+}
+
+.mat-table > .mat-header-row > .mat-header-cell, 
+.mat-table > .mat-row > .mat-cell {
+    display: table-cell;
+    height: 48px;
+    vertical-align: middle;
+    padding: 0 0.5em;
+
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.mtg-table{
+    width: 100%;
+}

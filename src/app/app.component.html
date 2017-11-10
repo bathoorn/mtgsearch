@@ -1,25 +1,114 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<mat-sidenav-container class="all" *ngIf="results">
-<mat-sidenav #leftnav mode="over" position="start" class="sidenav">
-  <mat-card class="mtgfacet" *ngFor="let name of facet_counts_names">
-    <mat-card-header><mat-card-title class="mtgtitle">{{name|slice:0:-7}}</mat-card-title></mat-card-header>
-    <p *ngFor="let value of facet_counts[name]['values']"><mat-checkbox (click)="toggleFacet(name,value)" ng-checked="active_facets[name][value]">{{value}} ({{facet_counts[name][value]}})</mat-checkbox></p>
- </mat-card>
+<div fxLayout="column" fxLayoutAlign="start" fxFlexFill>
+  <mat-toolbar class="fixed-header mat-elevation-z4" color="primary">
+    <mat-toolbar-row  fxFlex="noshrink" fxLayout="row" fxLayoutAlign="space-between center">
+    <div fxFlex="none" fxLayout="row" fxLayoutAlign="start center">
+      <button fxFlex="none" mat-icon-button (click)="toggleSidenav('leftnav');"><mat-icon>menu</mat-icon></button>
+      <mat-form-field fxFlex="noshrink"><input matInput placeholder="Search" [(ngModel)]="searchApiService.searchContext.query" name="Search" (keyup.enter)="search()"></mat-form-field>
+      <mat-icon fxFlex="none">search</mat-icon>({{searchApiService.length}} results)
+    </div>
+    <div><h1>MTG Search</h1></div>
+    <div fxFlex="none" fxLayout="row" fxLayoutAlign="end center">
+      <mat-form-field  fxFlex="noshrink">
+          <input matInput [matDatepicker]="picker" [(ngModel)]="releaseDate" placeholder="Travel back to" (dateInput)="searchApiService.filterDate($event)" (dateChange)="searchApiService.changeDate($event)">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+      <button fxFlex="none" mat-icon-button [matMenuTriggerFor]="sortmenu"><mat-icon>sort</mat-icon></button>
+      <mat-menu #sortmenu="matMenu">
+        <button mat-menu-item (click)="searchApiService.changeSort('name')">
+           <mat-icon *ngIf="searchApiService.isSort('name','asc')">arrow_upward</mat-icon>
+           <mat-icon *ngIf="searchApiService.isSort('name','desc')">arrow_downward</mat-icon>
+           <span>Name</span>
+        </button>
+        <button mat-menu-item (click)="searchApiService.changeSort('cmc')">
+            <mat-icon *ngIf="searchApiService.isSort('cmc','asc')">arrow_upward</mat-icon>
+            <mat-icon *ngIf="searchApiService.isSort('cmc','desc')">arrow_downward</mat-icon>
+           <span>CMC</span>
+        </button>
+        <button mat-menu-item (click)="searchApiService.changeSort('type')">
+            <mat-icon *ngIf="searchApiService.isSort('type','asc')">arrow_upward</mat-icon>
+            <mat-icon *ngIf="searchApiService.isSort('type','desc')">arrow_downward</mat-icon>
+           <span>Type</span>
+        </button>
+      </mat-menu>  
+      <button fxFlex="none" mat-icon-button [matMenuTriggerFor]="viewmenu"><mat-icon>view_quilt</mat-icon></button>
+      <mat-menu #viewmenu="matMenu">
+        <button mat-menu-item (click)="changeView('compact')">Compact view</button>
+        <button mat-menu-item (click)="changeView('list')">List view</button>
+        <button mat-menu-item (click)="changeView('image')">Image view</button>
+      </mat-menu>
+      <button fxFlex="none" mat-icon-button (click)="toggleSidenav('rightnav');"><mat-icon>show_chart</mat-icon></button>
+    </div>
+    </mat-toolbar-row>
+  </mat-toolbar>
+  
 
-  <mat-card class="mtgfacet" *ngIf="active_facets.length!=0">
-    <p >{{active_facets | json}}</p>
-  </mat-card>    
-  <mat-card class="mtgfacet" *ngIf="active_facets.length!=0">
-    <p >{{facet_counts | json}}</p>
-  </mat-card>
-</mat-sidenav>
-<mat-toolbar><button mat-button (click)="leftnav.open()"><mat-icon>menu</mat-icon></button><mat-form-field><input matInput placeholder="Search" [(ngModel)]="query" name="Search" (keyup.enter)="search()"></mat-form-field><mat-icon>search</mat-icon>({{results.response.numFound}} results)</mat-toolbar>
-<div class="content">
-<mat-card class="mtgcard" *ngFor="let card of results.response.docs">
-  <mat-card-content class="mtgcontent">
-  <p>{{card.name}}<span class="manacost" *ngIf="card.manacost" [innerHTML]="convertSymbols(card.manacost)"></span></p>  
-  <p>{{card.type}}</p></mat-card-content>
-</mat-card>
+  <mat-sidenav-container class="all" *ngIf="searchApiService.dataLoaded | async" fxLayout="column" fxLayoutAlign="start stretch">
+
+    <div class="content" fxFlex fxFill>
+      <mtg-card [dataSource]="searchApiService.cardSource" [cardstyle]="cardstyle" (selectedCard)="showCard($event)"></mtg-card>
+    </div>  
+  
+    <mat-sidenav #leftnav mode="over" position="start" fxFlex="noshrink">
+      <div fxLayout="column" fxLayoutAlign="center" class="leftsidenav">
+        <mtg-facet fxLayout="column colum-wrap" fxLayoutAlign="start start" class="leftsidenav" [dataSource]="searchApiService.facetSource" (update)="searchApiService.toggleFacet($event)"></mtg-facet>    
+      </div>
+    </mat-sidenav>
+
+    <mat-sidenav #rightnav mode="over" position="end" fxFlex="noshrink">
+      <div fxLayout="column" fxLayoutAlign="start" class="rightsidenav">
+        <mat-tab-group [(selectedIndex)]="selectedIndex">
+          <mat-tab label="Card Details">
+              <div *ngIf="selectedCard">
+                <h2>{{selectedCard.name}}</h2>
+                <p>{{selectedCard.type}}</p>
+                <p [innerHTML]="convertSymbols(selectedCard.text)"></p>
+                <h2 *ngIf="selectedCard.rulings.length!=0" mat-dialog-title>Rulings</h2>  
+                <p *ngFor="let ruling of selectedCard.rulings">{{ruling}}</p>
+                <h2 *ngIf="selectedCard.foreignnames.length!=0" mat-dialog-title>Foreign names</h2>  
+                <p *ngFor="let name of selectedCard.foreignnames">{{name}}</p>              
+              </div>              
+          </mat-tab>
+          <mat-tab label="Statistics">
+            <mat-card class="mtggraph">
+              <mat-card-header><mat-card-title>CMC distribution</mat-card-title></mat-card-header>
+              <div ng-app="angularChartApp" ng-controller="AppComponent">
+                <canvas baseChart #mana="base-chart"
+                [datasets]="searchApiService.pivots[0].data"
+                [labels]="searchApiService.pivots[0].labels"
+                [options]="searchApiService.pivots[0].options"
+                [legend]="searchApiService.pivots[0].legend"
+                [chartType]="'bar'"></canvas>
+              </div>
+            </mat-card>
+            <mat-card class="mtggraph">
+              <mat-card-header><mat-card-title>Color distribution</mat-card-title></mat-card-header>
+              <div ng-app="angularChartApp" ng-controller="AppComponent">
+                <canvas baseChart #color="base-chart"
+                [datasets]="searchApiService.colorchart.data"
+                [labels]="searchApiService.colorchart.labels"
+                [options]="searchApiService.colorchart.options"
+                [colors]="searchApiService.colorchart.colors"
+                [legend]="searchApiService.colorchart.legend"
+                [chartType]="'pie'"></canvas>
+              </div>
+            </mat-card>
+          </mat-tab>
+        </mat-tab-group>  
+      </div>
+    </mat-sidenav>
+  </mat-sidenav-container>      
+
+  <mat-toolbar class="fixed-footer" color="primary" fxFlex="noshrink" fxLayout="row" fxLayoutAlign="center center">
+      <mat-paginator #paginator class="footer" color="primary"
+          [length]="searchApiService.length"
+          [pageIndex]="searchApiService.searchContext.page_index"
+          [pageSize]="searchApiService.searchContext.page_size"
+          [pageSizeOptions]="pageSizeOptions"
+          (page)="pageEvent = searchApiService.changePagination($event)">
+      </mat-paginator>
+  </mat-toolbar>    
+
+
 </div>
-</mat-sidenav-container>
-

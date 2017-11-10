@@ -1,0 +1,10 @@
+<h2 mat-dialog-title>{{data.card.name}}</h2>
+<mat-dialog-content>
+  <p>{{data.card.type}}</p>
+  <p [innerHTML]="convertSymbols(data.card.text)"></p>
+  <h2 *ngIf="data.card.rulings.length!=0" mat-dialog-title>Rulings</h2>  
+  <p *ngFor="let ruling of data.card.rulings">{{ruling}}</p>
+  <h2 *ngIf="data.card.foreignnames.length!=0" mat-dialog-title>Foreign names</h2>  
+  <p *ngFor="let name of data.card.foreignnames">{{name}}</p>
+
+</mat-dialog-content>
